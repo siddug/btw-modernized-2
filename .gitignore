@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Build / packaging artifacts
+dist/
+build/
+*.egg-info/
+
+# Local configuration and secrets — never commit real values
+.env
+
+# Local stack data
+btw-db-data/

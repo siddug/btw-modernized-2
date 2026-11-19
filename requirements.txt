@@ -1,0 +1,11 @@
+# Pinned runtime dependencies for the FastAPI port of the publisher service.
+# Mirrors [project.dependencies] in pyproject.toml; scripts/smoke.py asserts
+# the two manifests agree. Install with: python3 -m pip install -r requirements.txt
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+asyncpg==0.30.0
+pydantic-settings==2.7.1
+pybars3==0.9.7
+apscheduler==3.10.4
+minify-html==0.15.6
+python-multipart==0.0.20

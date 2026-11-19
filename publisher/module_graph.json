@@ -1,0 +1,70 @@
+{
+  "translation_pair": "node-express__python-fastapi",
+  "package": "publisher",
+  "rule": "Closed, acyclic module graph: every depends_on entry must reference a module with a strictly smaller build_order; no cycles, no forward references.",
+  "modules": [
+    {
+      "name": "config",
+      "package": "config",
+      "build_order": 0,
+      "source_modules": ["constants", "utils"],
+      "depends_on": []
+    },
+    {
+      "name": "db",
+      "package": "db",
+      "build_order": 1,
+      "source_modules": ["services-db"],
+      "depends_on": ["config"]
+    },
+    {
+      "name": "notes-cache",
+      "package": "notes_cache",
+      "build_order": 2,
+      "source_modules": ["logic-notes"],
+      "depends_on": ["db", "config"]
+    },
+    {
+      "name": "memories",
+      "package": "memories",
+      "build_order": 3,
+      "source_modules": ["logic-memories"],
+      "depends_on": ["db"]
+    },
+    {
+      "name": "templates",
+      "package": "templates",
+      "build_order": 4,
+      "source_modules": ["app"],
+      "depends_on": ["config"]
+    },
+    {
+      "name": "tenancy",
+      "package": "tenancy",
+      "build_order": 5,
+      "source_modules": ["app", "routes-public"],
+      "depends_on": ["config"]
+    },
+    {
+      "name": "public-routes",
+      "package": "public_routes",
+      "build_order": 6,
+      "source_modules": ["routes-public", "routes-sitemap"],
+      "depends_on": ["config", "notes-cache", "memories", "templates", "tenancy"]
+    },
+    {
+      "name": "internal-routes",
+      "package": "internal_routes",
+      "build_order": 7,
+      "source_modules": ["routes-internal"],
+      "depends_on": ["notes-cache"]
+    },
+    {
+      "name": "server",
+      "package": "server",
+      "build_order": 8,
+      "source_modules": ["app", "server-entry"],
+      "depends_on": ["config", "notes-cache", "templates", "tenancy", "public-routes", "internal-routes"]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "publisher"
+version = "0.0.0"
+description = "FastAPI port of the Express 'publisher' service (behaviour-preserving modernisation scaffold, translation pair node-express__python-fastapi)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.6",
+    "uvicorn[standard]>=0.34.0",
+    "asyncpg>=0.30.0",
+    "pydantic-settings>=2.7.1",
+    "pybars3>=0.9.7",
+    "apscheduler>=3.10.4",
+    "minify-html>=0.15.6",
+    "python-multipart>=0.0.20",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "httpx>=0.28.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["publisher*"]

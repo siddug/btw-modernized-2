@@ -1,0 +1,30 @@
+# Local stack for the publisher FastAPI port: a Postgres instance with the
+# read-only `btw` schema the service reads (btw.users, btw.custom_domains,
+# btw.notes, btw.memories). The schema DDL lives in db/init and is mounted
+# into the container's init directory.
+#
+#   docker compose up -d db
+#   TASKS_DATABASE_URL=postgres://postgres:postgres@localhost:55432/btw
+#
+name: btw-publisher-scaffold
+
+services:
+  db:
+    image: postgres:15.2-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: btw
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d btw"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+
+volumes:
+  db-data:
