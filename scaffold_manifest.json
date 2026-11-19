@@ -1,0 +1,53 @@
+{
+  "summary": "Empty Python FastAPI scaffold for the behaviour-preserving port of the Express 4 'publisher' service (translation pair node-express__python-fastapi), built from the approved system design, mapping plan, feature queue and risk assessment. The publisher/ package holds the nine target module packages in the design's linear build order 0-8 (config, db, notes_cache, memories, templates, tenancy, public_routes, internal_routes, server), each a documentation-only stub with no migrated business behaviour; publisher/module_graph.json records the closed acyclic graph (hyphenated design names mapped to underscore package names). Around it: dependency manifests (pyproject.toml + pinned requirements.txt kept in sync), .env.example covering the full env surface with GHOST_API_KEY as a secret-store placeholder only (ADR-003), a local Postgres 'btw' stack (docker-compose.yml + db/init/01-btw-schema.sql with the four read-only tables), CI (.github/workflows/ci.yml) and one stdlib-only smoke check (scripts/smoke.py). All validation commands are argv arrays run from the scaffold root, needing no network, no installed dependencies and no absolute paths.",
+  "files": [
+    ".env.example",
+    ".gitignore",
+    ".github/workflows/ci.yml",
+    "README.md",
+    "db/init/01-btw-schema.sql",
+    "docker-compose.yml",
+    "pyproject.toml",
+    "publisher/__init__.py",
+    "publisher/config/__init__.py",
+    "publisher/db/__init__.py",
+    "publisher/internal_routes/__init__.py",
+    "publisher/memories/__init__.py",
+    "publisher/module_graph.json",
+    "publisher/notes_cache/__init__.py",
+    "publisher/public_routes/__init__.py",
+    "publisher/server/__init__.py",
+    "publisher/templates/__init__.py",
+    "publisher/tenancy/__init__.py",
+    "requirements.txt",
+    "scaffold_manifest.json",
+    "scripts/smoke.py"
+  ],
+  "validation": [
+    {
+      "argv": ["python3", "-B", "-c", "import ast, pathlib\nfiles = sorted(pathlib.Path('publisher').rglob('*.py')) + sorted(pathlib.Path('scripts').rglob('*.py'))\nfor p in files:\n    ast.parse(p.read_text(encoding='utf-8'), filename=str(p))\nprint('syntax OK:', len(files), 'python files')"],
+      "purpose": "Syntax-check every scaffold Python file via ast.parse; unlike compileall this writes no bytecode caches, so rerunning validation leaves the tree clean."
+    },
+    {
+      "argv": ["python3", "-m", "json.tool", "scaffold_manifest.json"],
+      "purpose": "Prove scaffold_manifest.json is valid JSON."
+    },
+    {
+      "argv": ["python3", "-m", "json.tool", "publisher/module_graph.json"],
+      "purpose": "Prove the target module graph manifest is valid JSON."
+    },
+    {
+      "argv": ["python3", "-B", "scripts/smoke.py"],
+      "purpose": "Smoke check (stdlib-only, clean checkout): all nine module packages import; the module graph is closed and acyclic with every depends_on at a strictly smaller build_order and a matching package directory; .env.example declares every required env var with GHOST_API_KEY as a secret-store placeholder; no file contains the leaked GHOST_API_KEY literal (ADR-003); requirements.txt pins every dependency with == and its set equals pyproject.toml dependencies; every manifest-listed file exists and every validation step is a non-empty argv array of strings; docker-compose.yml defines the local Postgres btw stack."
+    }
+  ],
+  "notes": [
+    "All validation commands are argv arrays of strings relative to the scaffold root — no shell strings, no quoting, no globbing, no absolute paths — and need no network access or third-party packages, so they run from a clean checkout. The syntax step uses ast.parse instead of compileall so rerunning validation writes no __pycache__ bytecode into the tree.",
+    "Dependency installation (python3 -m pip install -r requirements.txt) is exercised in CI (.github/workflows/ci.yml), not in the local validation commands, keeping the local checks fast and self-contained; the smoke check itself passes with no dependencies installed because the scaffold stubs are docstring-only.",
+    "The scaffold contains no migrated business behaviour: every publisher/<module>/__init__.py is a documentation-only stub recording responsibilities, source modules, depends_on and the explicit dead-code drops (utils/utils.js, routes/sitemap.js genSitemap() — ADR-010).",
+    "GHOST_API_KEY is never written into this repository (ADR-003): .env.example carries a <load-from-secret-store> placeholder and scripts/smoke.py assembles the leaked source literal from two fragments and scans every scaffold file for it, so the checker file itself never contains the secret.",
+    "Hyphenated design module names map to Python packages with underscores (notes-cache -> notes_cache, public-routes -> public_routes, internal-routes -> internal_routes); the mapping is machine-readable in publisher/module_graph.json.",
+    "db/init/01-btw-schema.sql creates only the read-only tables the service touches (btw.users, btw.custom_domains, btw.notes, btw.memories) with column definitions taken from the recorded btw pg_dump, for the local docker-compose stack on localhost:55432.",
+    "Build-order rule for future work: a module may only import modules with a strictly smaller build_order; scripts/smoke.py enforces this invariant on publisher/module_graph.json so the graph cannot silently become cyclic or forward-referencing."
+  ]
+}

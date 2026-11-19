@@ -1,0 +1,38 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  scaffold-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Syntax-check all scaffold Python files (ast.parse, writes no bytecode)
+        run: >-
+          python3 -B -c "import ast, pathlib
+          files = sorted(pathlib.Path('publisher').rglob('*.py')) + sorted(pathlib.Path('scripts').rglob('*.py'))
+          for p in files:
+              ast.parse(p.read_text(encoding='utf-8'), filename=str(p))
+          print('syntax OK:', len(files), 'python files')"
+
+      - name: Validate JSON manifests
+        run: |
+          python3 -m json.tool scaffold_manifest.json > /dev/null
+          python3 -m json.tool publisher/module_graph.json > /dev/null
+
+      - name: Smoke check (stdlib-only, must also pass without deps installed)
+        run: python3 -B scripts/smoke.py
